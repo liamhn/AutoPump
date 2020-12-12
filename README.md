@@ -111,7 +111,13 @@ num_words = len(words)
 encoding = {w: i for i, w in enumerate(words)}
 decoding = {i: w for i, w in enumerate(words)}
 ```
-The corpus for all of Lil Pump's lyrics contains 2982 unique words. We have our data in the form of a list of cleaned words. Next we need to construct our model and prepare the data to be fed into it.
+The corpus for all of Lil Pump's lyrics contains 2982 unique words. We have our data in the form of a list of cleaned words. Next we need to construct our model and prepare the data to be fed into it.  
+Our model will take a sequence of words, and try to predict the next word.
+Our neural network architecture is as follows.  
+- Input layer. The input layer's shape the number of unique words by the number of words per "sentence". It is shaped to the x-data (which is a vertically stacked matrix of 1-hot encoded word vectors.  
+- LSTM layer. Since we are dealing with sequential data, we use an LSTM. Each LSTM node contains a "memory cell" which "remembers" the previous words in the sentence. We apply dropout after the LSTM layer to try to avoid overfitting (which turns out to be a bit of a futile task -- we simply don't have enough data using jsut Lil' Pump lyrics).
+- Output layer. The number of nodes in our output layer is equal to the total number of unique words in our corpus -- we want the output to be one of these words. We use softmax as our activation function for this layer since we are essentially treating this as a categorical classification problem (where we are trying to classify each sentence_length sequence in the the "category" given by the next word.  
+We use categorical crossentropy as our loss function and optimize with RMSprop.
 
 
 
