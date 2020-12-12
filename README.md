@@ -11,7 +11,7 @@ We start by importing lyricsgenius
 ```python
 import lyricsgenius
 ```
-Next, we input instantiate our genius class -- it needs a client token to work (you can get one from the genius api website)
+Next, we instantiate our genius class -- it needs a client token to work (you can get one from the genius api website)
 ```python
 client_token = 'your client token here'
 genius = lyricsgenius.Genius(client_token)
@@ -113,7 +113,39 @@ encoding = {w: i for i, w in enumerate(words)}
 decoding = {i: w for i, w in enumerate(words)}
 ```
 The corpus for all of Lil Pump's lyrics contains 2982 unique words. We have our data in the form of a list of cleaned words. Next we need to construct our model and prepare the data to be fed into it.  
-Our model will take a sequence of words, and try to predict the next word.
+## Constructing The Model  
+We will treat this as a classification problem. The data we are trying to "classify" will be a sequence of text, and the classification categories will be the next word following that sequence. Our model will take a sequence of words, and try to predict the next word. We can split our corpus into many sequences of text (as x data), and the following word (as y data). Then it is a simple matter of training a neural network to be able to classify each sequence into the appropriate class (i.e. predict the next word). Here we get out first hyper parameter -- the length of each sequence of x-data. We will experiment with this value bit, but we start out with a sentence length of 10 words -- a reasonable estimate for the length of a line of a song. We construct lists to hold the x_data nd y_data, as encoded lists of 10 word sequences, and the next encoded word, respectively.  
+
+```python
+# We will call each sequence of 50 words a "sentence"
+sentence_length = 10
+
+# Map the entire corpus to N sentences of 50 words each #
+
+# Initialize empty lists to store the data
+x_data = []
+y_data = []
+
+# Loop over the corpus, take each sentence_length word sequence, encode it, and save it in x_data
+# Take each sentence_length+1st word, encode it, and save it to y_data 
+for i in range(0, len(corpus) - sentence_length):
+    sentence = corpus[i: i + sentence_length]
+    next_word = corpus[i + sentence_length]
+    x_data.append([encoding[word] for word in sentence])
+    y_data.append(encoding[next_word])
+```
+In the absence of an embedding, we one hot encode our words, and construct sentences as matrices made up of stacked, one-hot-encoded word vectors.   
+```python
+x = np.zeros((num_sentences, sentence_length, num_words), dtype = np.bool)
+y = np.zeros((num_sentences, num_words), dtype = np.bool)
+
+for i, sentence in enumerate(x_data):
+    for t, encoded_word in enumerate(sentence):
+        x[i, t, encoded_word] = 1
+    y[i, y_data[i]] = 1
+```
+
+
 Our neural network architecture is as follows.  
 - Input layer. The input layer's shape the number of unique words by the number of words per "sentence". It is shaped to the x-data (which is a vertically stacked matrix of 1-hot encoded word vectors.  
 - LSTM layer. Since we are dealing with sequential data, we use an LSTM. Each LSTM node contains a "memory cell" which "remembers" the previous words in the sentence. We apply dropout after the LSTM layer to try to avoid overfitting (which turns out to be a bit of a futile task -- we simply don't have enough data using jsut Lil' Pump lyrics).
@@ -122,9 +154,19 @@ Our neural network architecture is as follows.
 We use categorical crossentropy as our loss function and optimize with RMSprop.
 
 
-![AutoPumpArch](https://github.com/liamhn/AutoPump/blob/main/AutoPump%20Architecture.png?raw=true)
+![AutoPumpArch](https://github.com/liamhn/AutoPump/blob/main/AutoPump%20Architecture.png?raw=true)  
+Or in code, 
+```python
+n_LSTM = 256
+drop_rate=0.5
+model = km.Sequential()
+model.add(kl.Bidirectional(kl.LSTM(n_LSTM, return_sequences=False), input_shape = (sentence_length, num_words)))
+model.add(kl.Dropout(drop_rate))
+model.add(kl.Dense(num_words, activation = 'softmax'))
+model.compile(loss = 'categorical_crossentropy', optimizer = 'RMSprop', metrics = ['accuracy'],)
 
-
+fit = model.fit(x, y, epochs = 25, batch_size = 128,validation_split=.1,verbose=2)
+```
 
 
 
