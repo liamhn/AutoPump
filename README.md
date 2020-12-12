@@ -121,7 +121,7 @@ Our neural network architecture is as follows.
 We use categorical crossentropy as our loss function and optimize with RMSprop.
 
 
-
+![AutoPumpArch](https://github.com/liamhn/AutoPump/blob/main/AutoPump%20Architecture.png?raw=true)
 
 
 
