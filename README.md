@@ -114,7 +114,7 @@ decoding = {i: w for i, w in enumerate(words)}
 ```
 The corpus for all of Lil Pump's lyrics contains 2982 unique words. We have our data in the form of a list of cleaned words. Next we need to construct our model and prepare the data to be fed into it.  
 ## Constructing The Model  
-We will treat this as a classification problem. The data we are trying to "classify" will be a sequence of text, and the classification categories will be the next word following that sequence. Our model will take a sequence of words, and try to predict the next word. We can split our corpus into many sequences of text (as x data), and the following word (as y data). Then it is a simple matter of training a neural network to be able to classify each sequence into the appropriate class (i.e. predict the next word). Here we get out first hyper parameter -- the length of each sequence of x-data. We will experiment with this value bit, but we start out with a sentence length of 10 words -- a reasonable estimate for the length of a line of a song. We construct lists to hold the x_data nd y_data, as encoded lists of 10 word sequences, and the next encoded word, respectively.  
+We will treat this as a classification problem. The data we are trying to "classify" will be a sequence of text, and the classification categories will the set of unique words in the corpus. Our model will take a sequence of words, and try to predict the next word. We can split our corpus into many sequences of text (as x data), and the following word (as y data). Then it is a simple matter of training a neural network to be able to classify each sequence into the appropriate class (i.e. predict the next word). Here we get out first hyper parameter -- the length of each sequence of x-data. We will experiment with this value bit, but we start out with a sentence length of 10 words -- a reasonable estimate for the length of a line of a song. We construct lists to hold the x_data nd y_data, as encoded lists of 10 word sequences, and the next encoded word, respectively.  
 
 ```python
 # We will call each sequence of 50 words a "sentence"
@@ -149,7 +149,7 @@ for i, sentence in enumerate(x_data):
 Our neural network architecture is as follows.  
 - Input layer. The input layer's shape the number of unique words by the number of words per "sentence". It is shaped to the x-data (which is a vertically stacked matrix of 1-hot encoded word vectors.  
 - LSTM layer. Since we are dealing with sequential data, we use an LSTM. Each LSTM node contains a "memory cell" which "remembers" the previous words in the sentence. We apply dropout after the LSTM layer to try to avoid overfitting (which turns out to be a bit of a futile task -- we simply don't have enough data using jsut Lil' Pump lyrics).
-- Output layer. The number of nodes in our output layer is equal to the total number of unique words in our corpus -- we want the output to be one of these words. We use softmax as our activation function for this layer since we are essentially treating this as a categorical classification problem (where we are trying to classify each sentence_length sequence in the the "category" given by the next word.  
+- Output layer. The number of nodes in our output layer is equal to the total number of unique words in our corpus we want the output to be one of these words. We use softmax as our activation function for this layer since we are essentially treating this as a categorical classification problem (where we are trying to classify each sentence_length sequence in the the "category" given by the next word).  
 
 We use categorical crossentropy as our loss function and optimize with RMSprop.
 
@@ -168,7 +168,7 @@ model.compile(loss = 'categorical_crossentropy', optimizer = 'RMSprop', metrics 
 fit = model.fit(x, y, epochs = 25, batch_size = 128,validation_split=.1,verbose=2)
 ```
 
-
+There are quite a few hyperparameters in our model (and in our data) that we can play with. In this case, overfitting is a huge problem, since we have an extremely limited amount of data. The number of different ways any given word in the english language can be used is essentially limitless, and training a model on only a few examples of those uses is sure to lead to either overfitting (in the case of high training accuracy), or just low test accuracy. Nevertheless, we will play with these hyper parameters to try to optimize our model on the validation set. We loop over a few different combinations of hyperparameters and compare the resulting validation accuracy after 25 epochs of training.  
 
 
 
