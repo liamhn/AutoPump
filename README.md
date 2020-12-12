@@ -45,7 +45,8 @@ data = df[['title','lyrics']]
 data.sample(3)
 
 data.to_csv('lyrics_titles_'+artist_tag+'.csv')
-```python
+```
+
 We compile all the lyrics into one string
 ```python
 corpus0 = ""
