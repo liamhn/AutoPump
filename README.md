@@ -2,7 +2,7 @@
 AutoPump was an idea for a generative neural network model that is trained on song lyrics and creates new song lyrics of the same style. The name AutoPump came from the original intention to do this project with lyrics from the artist Lil' Pump. We will start with a naive LSTM model that takes n words as input data, and tries to predict the n+1 word as output data
 
 ## Getting The Data
-Before we construct our neural network model, we first need to acquire some data. We are interested in training hte neural netowrk on lyrics written by Lil' Pump. To get thes lyrics, we use the lyricsgenius api, which can be installed with  
+Before we construct our neural network model, we first need to acquire some data. We are interested in training hte neural netowrk on lyrics written by Lil' Pump. To get these lyrics, we use the lyricsgenius api, which can be installed with  
   
 ```pip install lyricsgenius```  
   
