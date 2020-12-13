@@ -276,3 +276,6 @@ With a 15-word sentence model, the repetition goes away, but the output still le
 >A She ' Know How The No Way , Ooh  
 >I Just Smoke My Dope  
 
+<p>
+  Obviously, no one is going to be recording songs with these lyrics any time soon, but it is a good start towards some sort of lyric generator. Some obvious improvements to this project include including more artists/more data, using an embedding, and using more sophisticated neural network architectures. We intend to make these improvements in the future.
+
