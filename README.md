@@ -173,5 +173,106 @@ There are quite a few hyperparameters in our model (and in our data) that we can
 
 ![AutoPumpArch](https://github.com/liamhn/AutoPump/blob/main/model%20accuracy.png?raw=true)  
 
-We see immediately that the validation accuracy is very low overall -- never any higher than 35%, no matter what parameters we choose.
+We see immediately that the validation accuracy is very low overall -- usually hovering near 30%, never higher than 35%, no matter what parameters we choose. This is contrasted with the training set accuracy (not shown) which increases up 85-90% after 50 epochs. This is a clear indication of overfitting. Another clear indication of overfitting in this plot is seen in the models with 0 dropout rate (green curves). These models quickly attain their maximum validation accuracy, and then slowly decrease their accuracy as the epochs progress (as the bias towards the training set increases). This effect is enhanced when the number of LSTMs is higher -- the accuracy rises much faster, and then starts to decrease.  
+  
+Another thing to point out here is that the validation accuracy actually isn't an excellent metric for assessing the quality of the model in this case. This is because the validation accuracy is just a measure of whether or not the model correctly predicted the next word for each sequence in the validation set. It is *_not_* a measure of whetehr or not the predicted next word was *_a_* correct use of the word. That is, the solution is highly degenerate -- there are a very large number of next words that are technically correct uses of the word, even if they aren't the next word that appeared in the validation set. In some sense, however, the validation accuracy is a measure of how good the model is at predicting "What Lil Pump Would Say", rather than a measure of how sensible the model is as an english text generator.  
+
+We take the model and seed it with a random sentence. From this, we predict the next word iteratively until we have consturcted a "Song".  
+
+```python
+# Randomly choose sentence_length words from the dictionary of words as our
+# starting sentence.
+seed = []
+for i in range(sentence_length):
+    seed.append(decoding[np.random.randint(0, num_words - 1)])
+
+# Encode the seed sentence.
+encoded_seed = np.zeros((1, sentence_length, num_words), dtype = np.bool)
+for i, w in enumerate(seed):
+    encoded_seed[0, i, encoding[w]] = 1
+
+text = ''
+
+# Run the seed sentence through the model.  Add the output to the
+# generated text.  Take the output and append it to the seed sentence
+# and remove the first word from the seed sentence.  Then repeat until
+# you've generated as many words as you like.
+for i in range(150):
+
+    # Get the most-probably next word.
+    pred = np.argmax(model.predict(encoded_seed, verbose = 0))
+
+    if i%10 == 0:
+        text+='\n'
+    
+    # Put in verse and chorus flags for style
+    if i == 0:
+        text+="\n[Verse]\n\n"
+        
+    if i == 75:
+        text+="\n\n[Chorus]\n"
+        
+    # Add it to the generated text.
+    text += decoding[pred].capitalize()+" "
+    
+
+    # Encode the next word.
+    next_word = np.zeros((1, 1, num_words), dtype = np.bool)
+    next_word[0, 0, pred] = 1
+
+    # Concatenate the next word to the seed sentence, but leave off
+    # the first element so that the length stays the same.
+    encoded_seed = np.concatenate((encoded_seed[:, 1:, :], next_word), axis = 1)
+
+    
+# Print out the generated text.
+print("Lyrics: \n")
+print(text)
+```
+
+Some very interesting behaviour comes out of different models. For example, the 5-word-sentence models tend to learn to simply repeat the same words over and over.
+>[Verse]  
+>  
+>, Ooh , Brr )   
+> I @#$% A @#$%  
+>, I Forgot Her Name , Yuh , Yuh ,  
+>Yuh , Yuh , Yuh , Yuh , Yuh ,  
+>Yuh , Yuh , Yuh , Yuh , Yuh ,  
+>Yuh , Yuh , Yuh , Yuh , Yuh ,  
+>Yuh , Yuh , Yuh , Yuh , Yuh ,  
+>Yuh , Yuh , Yuh , Yuh , Yuh ,  
+>Yuh , Yuh , Yuh  
+>  
+>[Chorus]  
+>, Yuh , Yuh ,  
+>Yuh , Yuh , Yuh , Yuh , Yuh ,  
+>Yuh , Yuh , Yuh , Yuh , Yuh ,  
+>Yuh , Yuh , Yuh , Yuh , Yuh ,  
+>Yuh , Yuh , Yuh , Yuh , Yuh ,  
+.Yuh , Yuh , Yuh , Yuh , Yuh ,  
+>Yuh , Yuh , Yuh , Yuh , Yuh ,  
+>Yuh , Yuh , Yuh , Yuh , Yuh ,  
+
+With a 15-word sentence model, the repetition goes away, but the output still leaves something to be desired (89% train accuracy, 26% validation accuracy).  
+
+> [ Verse ]  
+>I Got  
+>You Can ' T Feel My Body  
+>Cause I ' M A Lot Of Molly Molly  
+>I Got The Got  
+>On My I Go , I ' M They Know  
+>They Brr , Brr , Yeah  
+>Throw It Back , Ooh , Yeah  
+>I Do This Is Brr  Yeah  
+>
+>[Chorus]  
+>Lil Pump , Yeah  Ayy , Ayy  
+>
+>I Be My , Bust It 's  
+>I'M Know The @#$%% ? Woo  
+> 
+>I ' M @#$% ' My @#$% Like ' Your Ooh  
+>Got A New ' Em Got  
+>A She ' Know How The No Way , Ooh  
+>I Just Smoke My Dope  
 
