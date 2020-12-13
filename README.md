@@ -98,7 +98,7 @@ corpus0 = corpus0.replace('¡', ' ¡ ')
 
 corpus0 = corpus0.lower()
 ```
-We split the corpus up by word, such that we have a list containing each word in the corpus in order. We also remove some unwated empty strings.  
+We split the corpus up by word, such that we have a list containing each word in the corpus in order. We also remove some unwanted empty strings.  
 ```python
 corpus = corpus0.split(' ')
 while (corpus.count('') > 0): 
