@@ -168,8 +168,10 @@ model.compile(loss = 'categorical_crossentropy', optimizer = 'RMSprop', metrics 
 fit = model.fit(x, y, epochs = 25, batch_size = 128,validation_split=.1,verbose=2)
 ```
 
-There are quite a few hyperparameters in our model (and in our data) that we can play with. In this case, overfitting is a huge problem, since we have an extremely limited amount of data. The number of different ways any given word in the english language can be used is essentially limitless, and training a model on only a few examples of those uses is sure to lead to either overfitting (in the case of high training accuracy), or just low test accuracy. Nevertheless, we will play with these hyper parameters to try to optimize our model on the validation set. We loop over a few different combinations of hyperparameters and compare the resulting validation accuracy after 50 epochs of training.  
+There are quite a few hyperparameters in our model (and in our data) that we can play with. In this case, overfitting is a huge problem, since we have an extremely limited amount of data. The number of different ways any given word in the english language can be used is essentially limitless, and training a model on only a few examples of those uses is sure to lead to either overfitting (in the case of high training accuracy), or just low test accuracy. Nevertheless, we will play with these hyper parameters to try to optimize our model on the validation set. We loop over a few different combinations of hyperparameters and compare the resulting validation accuracy after 50 epochs of training. 
 
 
+![AutoPumpArch](https://github.com/liamhn/AutoPump/blob/main/model%20accuracy.png?raw=true)  
 
+We see immediately that the validation accuracy is very low overall -- never any higher than 35%, no matter what parameters we choose.
 
